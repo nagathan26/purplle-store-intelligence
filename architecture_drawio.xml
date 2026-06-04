@@ -1,0 +1,56 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="Electron" modified="2026-06-03T18:52:00.000Z" agent="5.0" version="20.0.0" type="device">
+  <diagram id="apex_architecture_drawio" name="Apex Store Intelligence Architecture">
+    <mxGraphModel dx="1422" dy="812" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="APEX RETAIL STORE INTELLIGENCE - END-TO-END ARCHITECTURE" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=20;fontStyle=1;fontColor=#F8FAFC;" vertex="1" parent="1">
+          <mxGeometry x="50" y="40" width="700" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="cctv_feeds" value="CCTV Footage Streams&lt;br/&gt;(Store 1 &amp;amp; Store 2 Cams)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#334155;strokeColor=#475569;fontColor=#F8FAFC;fontStyle=1;fontSize=13;align=center;" vertex="1" parent="1">
+          <mxGeometry x="60" y="240" width="180" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="cv_inference" value="Edge CV Nodes&lt;br/&gt;[detect.py]&lt;br/&gt;(YOLOv8 + ByteTrack)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6B21A8;strokeColor=#7E22CE;fontColor=#F8FAFC;fontStyle=1;fontSize=13;align=center;" vertex="1" parent="1">
+          <mxGeometry x="290" y="240" width="180" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="api_gateway" value="FastAPI Ingestion API&lt;br/&gt;[main.py]&lt;br/&gt;(Middleware + Schema Val)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F766E;strokeColor=#115E59;fontColor=#F8FAFC;fontStyle=1;fontSize=13;align=center;" vertex="1" parent="1">
+          <mxGeometry x="520" y="240" width="180" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="sqlite_db" value="SQLite Database&lt;br/&gt;[store.db]&lt;br/&gt;(Normalized schemas)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1D4ED8;strokeColor=#1E40AF;fontColor=#F8FAFC;fontStyle=1;fontSize=13;align=center;" vertex="1" parent="1">
+          <mxGeometry x="750" y="240" width="180" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="jsonl_backups" value="Durable Event Backups&lt;br/&gt;(data_output_*.jsonl)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#475569;fontColor=#94A3B8;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="760" y="360" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="analytics_engine" value="Analytics Engine&lt;br/&gt;[sessions.py &amp;amp; metrics.py]&lt;br/&gt;(Session Build &amp;amp; POS Correlation)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#334155;fontColor=#F8FAFC;fontStyle=1;fontSize=13;align=center;" vertex="1" parent="1">
+          <mxGeometry x="980" y="240" width="200" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="dashboard_ui" value="Web Dashboard UI&lt;br/&gt;[dashboard.html]&lt;br/&gt;(KPIs &amp;amp; Interactive Maps)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0891B2;strokeColor=#0E7490;fontColor=#F8FAFC;fontStyle=1;fontSize=13;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="240" width="180" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#94A3B8;strokeWidth=2;" edge="1" parent="1" source="cctv_feeds" target="cv_inference">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#94A3B8;strokeWidth=2;" edge="1" parent="1" source="cv_inference" target="api_gateway">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#94A3B8;strokeWidth=2;" edge="1" parent="1" source="api_gateway" target="sqlite_db">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=#64748B;" edge="1" parent="1" source="cv_inference" target="jsonl_backups">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=#64748B;label=Lifespan Hot-Reload;" edge="1" parent="1" source="jsonl_backups" target="sqlite_db">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#94A3B8;strokeWidth=2;" edge="1" parent="1" source="sqlite_db" target="analytics_engine">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#94A3B8;strokeWidth=2;" edge="1" parent="1" source="analytics_engine" target="dashboard_ui">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

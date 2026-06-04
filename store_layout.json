@@ -1,0 +1,157 @@
+{
+  "_comment": "Store layout for the Apex/Purplle Brigade Road store. The challenge's 'store_layout.json' was shipped only as an effectively-empty .xlsx, so this file reconstructs the equivalent: zone names, per-camera coverage, and open hours. Zone and sku_zone labels are derived from the real department taxonomy in the Brigade sales export (skin, makeup, fragrance, hair, personal-care). Camera roles were assigned by inspecting one frame from each clip (see docs/DESIGN.md).",
+  "stores": [
+    {
+      "store_id": "STORE_BLR_002",
+      "store_name": "Brigade Road, Bangalore",
+      "city": "Bangalore",
+      "timezone": "Asia/Kolkata",
+      "staff_uniform_mode": "dark",
+      "open_hours": {
+        "mon": "10:00-22:00",
+        "tue": "10:00-22:00",
+        "wed": "10:00-22:00",
+        "thu": "10:00-22:00",
+        "fri": "10:00-22:00",
+        "sat": "10:00-22:00",
+        "sun": "10:00-22:00"
+      },
+      "cameras": [
+        {
+          "camera_id": "CAM_ENTRY_01",
+          "role": "entry",
+          "source_clip": "CCTV Footage/CAM 3.mp4",
+          "covers_zones": ["ENTRANCE"],
+          "customer_facing": true,
+          "note": "Glass storefront + mall corridor; ENTRY/EXIT threshold.",
+          "entry_region": { "xmin": 0, "xmax": 100, "ymin": 0, "ymax": 20 }
+        },
+        {
+          "camera_id": "CAM_FLOOR_01",
+          "role": "floor",
+          "source_clip": "CCTV Footage/CAM 1.mp4",
+          "covers_zones": ["SKINCARE", "HAIRCARE", "FRAGRANCE"],
+          "customer_facing": true,
+          "note": "Skin / face-care shelves (The Face Shop, Good Vibes).",
+          "zones": [
+            { "zone_id": "SKINCARE",  "xmin": 0,  "xmax": 33,  "ymin": 0, "ymax": 100 },
+            { "zone_id": "HAIRCARE",  "xmin": 33, "xmax": 66,  "ymin": 0, "ymax": 100 },
+            { "zone_id": "FRAGRANCE", "xmin": 66, "xmax": 100, "ymin": 0, "ymax": 100 }
+          ]
+        },
+        {
+          "camera_id": "CAM_FLOOR_02",
+          "role": "floor",
+          "source_clip": "CCTV Footage/CAM 2.mp4",
+          "covers_zones": ["MAKEUP", "WELLNESS"],
+          "customer_facing": true,
+          "note": "Makeup wall (Lakme, Maybelline, Faces Canada).",
+          "zones": [
+            { "zone_id": "MAKEUP", "xmin": 0, "xmax": 100, "ymin": 0, "ymax": 100 }
+          ]
+        },
+        {
+          "camera_id": "CAM_BILL_01",
+          "role": "billing",
+          "source_clip": "CCTV Footage/CAM 5.mp4",
+          "covers_zones": ["BILLING"],
+          "customer_facing": true,
+          "note": "Checkout counter with POS terminal and basket drop."
+        },
+        {
+          "camera_id": "CAM_BACKROOM_01",
+          "role": "backroom",
+          "source_clip": "CCTV Footage/CAM 4.mp4",
+          "covers_zones": ["BACKROOM"],
+          "customer_facing": false,
+          "note": "Stockroom (boxes, water dispenser). Staff-only: emits no customer events."
+        }
+      ],
+      "zones": [
+        {"zone_id": "SKINCARE",  "display_name": "Skincare",  "sku_zone": "MOISTURISER",    "department": "skin"},
+        {"zone_id": "HAIRCARE",  "display_name": "Haircare",  "sku_zone": "SHAMPOO",         "department": "hair"},
+        {"zone_id": "FRAGRANCE", "display_name": "Fragrance", "sku_zone": "EAU_DE_PARFUM",   "department": "fragrance"},
+        {"zone_id": "MAKEUP",    "display_name": "Makeup",    "sku_zone": "LIPSTICK",        "department": "makeup"},
+        {"zone_id": "WELLNESS",  "display_name": "Wellness",  "sku_zone": "SUPPLEMENT",      "department": "personal-care"},
+        {"zone_id": "BILLING",   "display_name": "Billing",   "sku_zone": null,              "department": "checkout"},
+        {"zone_id": "ENTRANCE",  "display_name": "Entrance",  "sku_zone": null,              "department": "threshold"},
+        {"zone_id": "BACKROOM",  "display_name": "Backroom",  "sku_zone": null,              "department": "stockroom"}
+      ]
+    },
+    {
+      "store_id": "STORE_DEL_004",
+      "store_name": "Connaught Place, Delhi",
+      "city": "Delhi",
+      "timezone": "Asia/Kolkata",
+      "staff_uniform_mode": "pink_black",
+      "open_hours": {
+        "mon": "10:00-22:00",
+        "tue": "10:00-22:00",
+        "wed": "10:00-22:00",
+        "thu": "10:00-22:00",
+        "fri": "10:00-22:00",
+        "sat": "10:00-22:00",
+        "sun": "10:00-22:00"
+      },
+      "cameras": [
+        {
+          "camera_id": "CAM_ENTRY_01",
+          "role": "entry",
+          "source_clip": "CCTV Footage/Store 2/entry 1.mp4",
+          "covers_zones": ["ENTRANCE"],
+          "customer_facing": true,
+          "note": "Top-down glass door camera. Yellow entry box = wooden floor just inside door (x:18-72%, y:40-78%). Black threshold strip at y≈45%. ENTRY counted only when person crosses top-to-bottom through the threshold.",
+          "entry_region": { "xmin": 18, "xmax": 72, "ymin": 40, "ymax": 78 },
+          "door_line_y": 45,
+          "crossing_direction": "top_to_bottom",
+          "reentry_window_s": 600
+        },
+        {
+          "camera_id": "CAM_ENTRY_02",
+          "role": "entry",
+          "source_clip": "CCTV Footage/Store 2/entry 2.mp4",
+          "covers_zones": ["ENTRANCE"],
+          "customer_facing": true,
+          "note": "Same entrance, second angle. Same yellow entry box and threshold as CAM_ENTRY_01.",
+          "entry_region": { "xmin": 18, "xmax": 72, "ymin": 40, "ymax": 78 },
+          "door_line_y": 45,
+          "crossing_direction": "top_to_bottom",
+          "reentry_window_s": 600
+        },
+
+        {
+          "camera_id": "CAM_FLOOR_01",
+          "role": "floor",
+          "source_clip": "CCTV Footage/Store 2/zone.mp4",
+          "covers_zones": ["SKINCARE", "HAIRCARE", "FRAGRANCE", "MAKEUP", "WELLNESS"],
+          "customer_facing": true,
+          "note": "Main sales floor area cover.",
+          "zones": [
+            { "zone_id": "SKINCARE",  "xmin": 0,  "xmax": 33, "ymin": 0,  "ymax": 50  },
+            { "zone_id": "HAIRCARE",  "xmin": 33, "xmax": 66, "ymin": 0,  "ymax": 50  },
+            { "zone_id": "FRAGRANCE", "xmin": 66, "xmax": 100,"ymin": 0,  "ymax": 50  },
+            { "zone_id": "MAKEUP",    "xmin": 0,  "xmax": 50, "ymin": 50, "ymax": 100 },
+            { "zone_id": "WELLNESS",  "xmin": 50, "xmax": 100,"ymin": 50, "ymax": 100 }
+          ]
+        },
+        {
+          "camera_id": "CAM_BILL_01",
+          "role": "billing",
+          "source_clip": "CCTV Footage/Store 2/billing_area.mp4",
+          "covers_zones": ["BILLING"],
+          "customer_facing": true,
+          "note": "Billing desk checkout."
+        }
+      ],
+      "zones": [
+        {"zone_id": "SKINCARE",  "display_name": "Skincare",  "sku_zone": "MOISTURISER",    "department": "skin"},
+        {"zone_id": "HAIRCARE",  "display_name": "Haircare",  "sku_zone": "SHAMPOO",         "department": "hair"},
+        {"zone_id": "FRAGRANCE", "display_name": "Fragrance", "sku_zone": "EAU_DE_PARFUM",   "department": "fragrance"},
+        {"zone_id": "MAKEUP",    "display_name": "Makeup",    "sku_zone": "LIPSTICK",        "department": "makeup"},
+        {"zone_id": "WELLNESS",  "display_name": "Wellness",  "sku_zone": "SUPPLEMENT",      "department": "personal-care"},
+        {"zone_id": "BILLING",   "display_name": "Billing",   "sku_zone": null,              "department": "checkout"},
+        {"zone_id": "ENTRANCE",  "display_name": "Entrance",  "sku_zone": null,              "department": "threshold"}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+# ==============================================================================
+# Git Ignore Configuration for Store Intelligence Pipeline
+# ==============================================================================
+
+# Python Bytecode and Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+bin/
+lib/
+include/
+
+# Database Files (SQLite, etc.)
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+/data/*.db
+/data/*.db-journal
+/data/*.db-shm
+/data/*.db-wal
+
+# Pytest and Test Coverage Reports
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Application Logs and Outputs
+*.log
+pipeline.log
+data_output_cam*.jsonl
+*.jsonl
+
+# Machine Learning Models and Weights
+*.pt
+*.onnx
+*.engine
+yolov8*.pt
+# ...but DO track the nano weights: the Dockerfile COPYs them so `docker compose up`
+# builds offline with no manual download (acceptance gate: no steps beyond git clone).
+!yolov8n.pt
+
+# Media and Raw CCTV Footage
+CCTV Footage/
+*.mp4
+*.avi
+*.mkv
+*.mov
+
+# OS-specific Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE and Editor Configurations
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp

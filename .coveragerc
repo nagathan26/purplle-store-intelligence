@@ -1,0 +1,21 @@
+# Coverage configuration.
+# We exclude modules that require the heavy CV stack (ultralytics, opencv, torch)
+# and a real CCTV directory — those run end-to-end in `docker compose up`, but
+# can't run inside the unit-test environment. The coverage number below is for
+# the API + tracking logic only, which is what the test suite exercises.
+[run]
+branch = False
+omit =
+    pipeline/detect.py
+    pipeline/seed.py
+    pipeline/stream.py
+    # main.py's CCTV-watcher + subprocess driver also needs a real CCTV dir +
+    # the detector subprocess to exercise; the API + endpoint code is covered
+    # via TestClient.
+    app/main.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.:
+    raise NotImplementedError

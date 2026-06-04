@@ -1,0 +1,2004 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Apex Store Intelligence Console</title>
+  
+  <!-- Modern Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    /* ════════════════════════════════════════════════════════
+       SaaS Design Tokens & Glassmorphism System (Dark Mode)
+       ════════════════════════════════════════════════════════ */
+    :root {
+      --bg: #070913;          /* Obsidian Deep Space */
+      --sidebar-bg: #0C0F1A;  /* Dark Blue Slate */
+      --card-bg: rgba(17, 22, 37, 0.7);  /* Glassmorphic card fill */
+      --card-border: rgba(255, 255, 255, 0.05); /* Thin translucent border */
+      --card-border-glow: rgba(99, 102, 241, 0.15);
+      
+      /* Colors */
+      --primary: #06B6D4;      /* Cyber Cyan */
+      --primary-glow: rgba(6, 182, 212, 0.3);
+      --secondary: #6366F1;    /* Electric Indigo */
+      --secondary-glow: rgba(99, 102, 241, 0.3);
+      --success: #10B981;      /* Emerald Green */
+      --warning: #F59E0B;      /* Warm Amber */
+      --danger: #EF4444;       /* Neon Coral */
+      --info: #3B82F6;         /* Royal Blue */
+      
+      /* Text Colors */
+      --text-primary: #F3F4F6;   /* Ice White */
+      --text-secondary: #9CA3AF; /* Light Gray */
+      --text-muted: #6B7280;     /* Muted Charcoal */
+      
+      /* Typography */
+      --font-display: 'Outfit', sans-serif;
+      --font-sans: 'Inter', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      
+      /* Shadows & Animations */
+      --shadow-glow: 0 0 20px rgba(6, 182, 212, 0.15);
+      --shadow-panel: 0 10px 30px -10px rgba(0, 0, 0, 0.7);
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --radius-lg: 16px;
+      --radius-md: 10px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+
+    /* ════════════════════════════════════════════════════════
+       SIDEBAR NAVIGATION
+       ════════════════════════════════════════════════════════ */
+    .sidebar {
+      width: 280px;
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--card-border);
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      padding: 24px;
+      justify-content: space-between;
+    }
+
+    .sidebar-top {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 4px;
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 18px;
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);
+    }
+
+    .brand-details {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-text {
+      font-family: var(--font-display);
+      color: var(--text-primary);
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+    }
+
+    .brand-subtext {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+      letter-spacing: 0.05em;
+    }
+
+    .live-status-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(16, 185, 129, 0.06);
+      border: 1px solid rgba(16, 185, 129, 0.15);
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin-top: 8px;
+    }
+
+    .live-status-container.offline {
+      background: rgba(239, 68, 68, 0.06);
+      border-color: rgba(239, 68, 68, 0.15);
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--success);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--success);
+      animation: pulse-glow 2s infinite;
+    }
+
+    .offline .pulse-dot {
+      background: var(--danger);
+      box-shadow: 0 0 10px var(--danger);
+    }
+
+    @keyframes pulse-glow {
+      0% { transform: scale(0.9); opacity: 0.8; }
+      50% { transform: scale(1.15); opacity: 1; box-shadow: 0 0 14px var(--success); }
+      100% { transform: scale(0.9); opacity: 0.8; }
+    }
+
+    .live-status-text {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--success);
+    }
+    
+    .offline .live-status-text {
+      color: var(--danger);
+    }
+
+    .nav-links {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 13.5px;
+      font-weight: 500;
+      padding: 11px 16px;
+      border-radius: var(--radius-md);
+      transition: var(--transition);
+      border: 1px solid transparent;
+    }
+
+    .nav-link:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.03);
+      border-color: rgba(255, 255, 255, 0.02);
+    }
+
+    .nav-link.active {
+      color: var(--primary);
+      background: rgba(6, 182, 212, 0.08);
+      border-color: rgba(6, 182, 212, 0.15);
+      font-weight: 600;
+    }
+
+    .nav-link svg {
+      width: 18px;
+      height: 18px;
+      opacity: 0.7;
+    }
+    
+    .nav-link.active svg {
+      opacity: 1;
+    }
+
+    /* Console Logger Box inside sidebar */
+    .sidebar-console {
+      background: #060810;
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: #38BDF8;
+      height: 120px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .console-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--text-muted);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 6px;
+      margin-bottom: 4px;
+      font-family: var(--font-sans);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .console-line {
+      line-height: 1.3;
+      word-break: break-all;
+    }
+
+    .console-line.success { color: var(--success); }
+    .console-line.warn { color: var(--warning); }
+    .console-line.info { color: var(--text-secondary); }
+
+    /* ════════════════════════════════════════════════════════
+       MAIN VIEWPORT
+       ════════════════════════════════════════════════════════ */
+    .main-viewport {
+      margin-left: 280px;
+      flex: 1;
+      padding: 40px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      max-width: 1600px;
+      width: calc(100% - 280px);
+    }
+
+    /* ════════════════════════════════════════════════════════
+       TOP PORTAL HEADER
+       ════════════════════════════════════════════════════════ */
+    .portal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .header-left h1 {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 26px;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+
+    .header-left p {
+      font-size: 13.5px;
+      color: var(--text-secondary);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .refresh-control {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      padding: 4px;
+    }
+
+    .control-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: var(--transition);
+    }
+
+    .control-btn:hover {
+      color: var(--text-primary);
+    }
+
+    .control-btn.active {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-primary);
+    }
+
+    /* Store Switcher Styled Wrapper */
+    .store-select-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .store-select-icon {
+      position: absolute;
+      left: 14px;
+      color: var(--primary);
+      pointer-events: none;
+      width: 16px;
+      height: 16px;
+    }
+
+    .store-select-field {
+      appearance: none;
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      padding: 10px 40px 10px 38px;
+      font-family: var(--font-sans);
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: var(--transition);
+      outline: none;
+      box-shadow: var(--shadow-glow);
+    }
+
+    .store-select-field:hover {
+      border-color: rgba(6, 182, 212, 0.3);
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .store-select-field:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
+    }
+
+    /* ════════════════════════════════════════════════════════
+       KPI SCOREBOARD (GLOWING CARDS)
+       ════════════════════════════════════════════════════════ */
+    .kpi-scoreboard {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 1200px) {
+      .kpi-scoreboard { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .kpi-scoreboard { grid-template-columns: repeat(1, 1fr); }
+    }
+
+    .kpi-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition);
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--card-border-glow);
+      box-shadow: 0 12px 24px -10px rgba(0,0,0,0.5), 0 0 1px 1px var(--card-border-glow);
+    }
+
+    /* Left accent glow strips */
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: transparent;
+    }
+
+    .kpi-card.revenue::before { background: var(--secondary); }
+    .kpi-card.conversion::before { background: var(--success); }
+    .kpi-card.visitors::before { background: var(--primary); }
+    .kpi-card.basket::before { background: var(--warning); }
+    .kpi-card.queue::before { background: #A855F7; }
+
+    .kpi-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .kpi-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      letter-spacing: 0.02em;
+    }
+
+    .kpi-icon-wrapper {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .revenue .kpi-icon-wrapper { background: rgba(99, 102, 241, 0.1); color: var(--secondary); }
+    .conversion .kpi-icon-wrapper { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+    .visitors .kpi-icon-wrapper { background: rgba(6, 182, 212, 0.1); color: var(--primary); }
+    .basket .kpi-icon-wrapper { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+    .queue .kpi-icon-wrapper { background: rgba(168, 85, 247, 0.1); color: #A855F7; }
+
+    .kpi-icon-wrapper svg { width: 16px; height: 16px; }
+
+    .kpi-value {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 26px;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+      line-height: 1.1;
+    }
+
+    .kpi-footer {
+      font-size: 12px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .trend-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 600;
+      border-radius: 4px;
+    }
+
+    .trend-up { color: var(--success); }
+    .trend-down { color: var(--danger); }
+
+    /* ════════════════════════════════════════════════════════
+       PANELS & GRID LAYOUTS
+       ════════════════════════════════════════════════════════ */
+    .dashboard-grid-two {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+    }
+
+    .dashboard-grid-even {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 1024px) {
+      .dashboard-grid-two, .dashboard-grid-even { grid-template-columns: 1fr; }
+    }
+
+    .section-divider {
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 12px;
+    }
+
+    .section-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .panel {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-panel);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      position: relative;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      padding-bottom: 16px;
+    }
+
+    .panel-title-area {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .panel-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 17px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .panel-title svg {
+      width: 18px;
+      height: 18px;
+      color: var(--primary);
+    }
+
+    .panel-subtitle {
+      font-size: 12.5px;
+      color: var(--text-secondary);
+    }
+
+    /* ════════════════════════════════════════════════════════
+       SESSION FUNNEL REDESIGN
+       ════════════════════════════════════════════════════════ */
+    .funnel-container {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .funnel-step-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+      transition: var(--transition);
+    }
+
+    .funnel-step-card:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.06);
+    }
+
+    .funnel-step-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .funnel-step-label {
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .funnel-step-label span.number {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--text-secondary);
+    }
+
+    .funnel-step-metrics {
+      font-family: var(--font-mono);
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .funnel-step-dropoff {
+      color: var(--danger);
+      font-weight: 600;
+      margin-left: 8px;
+      font-size: 11px;
+    }
+
+    .funnel-progress-bg {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 3px;
+      overflow: hidden;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);
+    }
+
+    .funnel-progress-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+      box-shadow: 0 0 8px var(--primary-glow);
+      transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ════════════════════════════════════════════════════════
+       ZONE HEATMAP TABLE/METERS
+       ════════════════════════════════════════════════════════ */
+    .heatmap-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .heatmap-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      border-radius: var(--radius-md);
+      gap: 16px;
+      transition: var(--transition);
+    }
+
+    .heatmap-row:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .heatmap-zone-info {
+      flex: 1.5;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .heatmap-zone-name {
+      font-weight: 600;
+      font-size: 13.5px;
+      color: var(--text-primary);
+    }
+
+    .heatmap-zone-meta {
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .heatmap-visits-bar {
+      flex: 2;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .heatmap-visits-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+    }
+
+    .heatmap-conversion {
+      flex: 0.8;
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .heatmap-conv-value {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .heatmap-conv-lbl {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    /* ════════════════════════════════════════════════════════
+       STORE FLOOR PLAN LAYOUT
+       ════════════════════════════════════════════════════════ */
+    .layout-workspace {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      border-radius: var(--radius-lg);
+      position: relative;
+    }
+
+    .layout-img-wrapper {
+      position: relative;
+      cursor: zoom-in;
+      overflow: hidden;
+      border-radius: var(--radius-md);
+      transition: var(--transition);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      display: inline-block;
+      max-width: 100%;
+    }
+
+    .layout-img-wrapper:hover {
+      border-color: rgba(6, 182, 212, 0.3);
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.1);
+    }
+
+    .layout-img-wrapper img {
+      max-width: 100%;
+      max-height: 400px;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+
+    .layout-placeholder {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      padding: 60px 40px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .layout-placeholder svg {
+      width: 48px;
+      height: 48px;
+      opacity: 0.3;
+    }
+
+    .zoom-hint {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* ════════════════════════════════════════════════════════
+       MODALS
+       ════════════════════════════════════════════════════════ */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(4, 6, 14, 0.9);
+      backdrop-filter: blur(10px);
+      justify-content: center;
+      align-items: center;
+      padding: 40px;
+    }
+
+    .modal-content {
+      position: relative;
+      max-width: 90%;
+      max-height: 90%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: var(--sidebar-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: -16px;
+      right: -16px;
+      width: 36px;
+      height: 36px;
+      background: var(--danger);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+      transition: var(--transition);
+      border: none;
+    }
+
+    .modal-close:hover {
+      transform: scale(1.1);
+    }
+
+    .modal-img {
+      max-width: 100%;
+      max-height: 75vh;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255,255,255,0.05);
+      object-fit: contain;
+    }
+
+    .modal-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 16px;
+      margin-top: 16px;
+      color: var(--text-primary);
+    }
+
+    /* ════════════════════════════════════════════════════════
+       TABLES (PRODUCTS / COMPARISON)
+       ════════════════════════════════════════════════════════ */
+    .table-container {
+      overflow-x: auto;
+      width: 100%;
+    }
+
+    .premium-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+
+    .premium-table th {
+      padding: 12px 16px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-size: 10.5px;
+    }
+
+    .premium-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+      color: var(--text-primary);
+    }
+
+    .premium-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .premium-table tbody tr:hover td {
+      background: rgba(255, 255, 255, 0.01);
+    }
+
+    .td-highlight {
+      font-weight: 600;
+      color: var(--primary);
+      font-family: var(--font-mono);
+    }
+
+    /* ════════════════════════════════════════════════════════
+       BEHAVIORAL ALERTS (ANOMALIES)
+       ════════════════════════════════════════════════════════ */
+    .anomaly-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .anomaly-card {
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      gap: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition);
+    }
+
+    .anomaly-card:hover {
+      background: rgba(255, 255, 255, 0.03);
+      border-color: rgba(255, 255, 255, 0.05);
+    }
+
+    /* Severity indicators left border */
+    .anomaly-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+    }
+
+    .anomaly-card.CRITICAL::before { background: var(--danger); }
+    .anomaly-card.WARN::before { background: var(--warning); }
+    .anomaly-card.INFO::before { background: var(--info); }
+
+    .anomaly-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .CRITICAL .anomaly-icon { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+    .WARN .anomaly-icon { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+    .INFO .anomaly-icon { background: rgba(59, 130, 246, 0.1); color: var(--info); }
+
+    .anomaly-icon svg { width: 16px; height: 16px; }
+
+    .anomaly-details {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .anomaly-title-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .anomaly-type {
+      font-weight: 700;
+      font-size: 13.5px;
+      color: var(--text-primary);
+      font-family: var(--font-display);
+    }
+
+    .anomaly-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .CRITICAL .anomaly-badge { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+    .WARN .anomaly-badge { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+    .INFO .anomaly-badge { background: rgba(59, 130, 246, 0.15); color: var(--info); }
+
+    .anomaly-desc {
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .anomaly-action {
+      font-size: 12px;
+      color: var(--primary);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    /* ════════════════════════════════════════════════════════
+       CCTV PROCESSING NODES
+       ════════════════════════════════════════════════════════ */
+    .cctv-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .cctv-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: var(--transition);
+    }
+
+    .cctv-card:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .cctv-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .cctv-name {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cctv-name svg { width: 14px; height: 14px; color: var(--text-secondary); }
+
+    .cctv-status-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .cctv-status-badge.COMPLETED { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .cctv-status-badge.PROCESSING { background: rgba(6, 182, 212, 0.15); color: var(--primary); }
+    .cctv-status-badge.FAILED { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+    .cctv-status-badge.QUEUED { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+
+    .cctv-progress {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .cctv-progress-bg {
+      flex: 1;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .cctv-progress-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: var(--primary);
+      transition: width 0.5s ease;
+    }
+
+    .cctv-progress-val {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-secondary);
+      width: 32px;
+      text-align: right;
+    }
+
+    /* Footer timestamp */
+    .portal-footer {
+      text-align: center;
+      padding: 24px 0;
+      font-size: 11.5px;
+      color: var(--text-muted);
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      margin-top: 16px;
+      font-family: var(--font-mono);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR NAVIGATION -->
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <!-- Brand Logo -->
+      <div class="brand">
+        <div class="brand-logo">AP</div>
+        <div class="brand-details">
+          <div class="brand-text">Apex Store</div>
+          <div class="brand-subtext">INTELLIGENCE V2</div>
+        </div>
+      </div>
+      
+      <!-- Live Monitoring Status Badge -->
+      <div class="live-status-container" id="live-badge">
+        <div class="pulse-dot"></div>
+        <span class="live-status-text" id="live-status">PORTAL ONLINE</span>
+      </div>
+
+      <!-- Navigation Menu -->
+      <nav class="nav-links">
+        <a href="#overview-section" class="nav-link active" id="link-overview">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+          Overview Board
+        </a>
+        <a href="#trends-section" class="nav-link" id="link-trends">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 12l3-3 3 3 4-4M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+          Trends & Funnels
+        </a>
+        <a href="#layout-section" class="nav-link" id="link-layout">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+          Floor Plan Layout
+        </a>
+        <a href="#heatmap-section" class="nav-link" id="link-heatmap">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          Zone Heatmaps
+        </a>
+        <a href="#alerts-section" class="nav-link" id="link-alerts">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          Alerts & CCTV Nodes
+        </a>
+        <a href="#comparison-section" class="nav-link" id="link-comparison">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+          Store Comparison
+        </a>
+      </nav>
+    </div>
+
+    <!-- Console Log Display -->
+    <div class="sidebar-console">
+      <div class="console-header">
+        <span>CCTV FEED LOGS</span>
+        <svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24" style="color:var(--primary);"><circle cx="12" cy="12" r="12"/></svg>
+      </div>
+      <div id="console-output">
+        <div class="console-line info">[SYS] Loading intelligence feeds...</div>
+        <div class="console-line success">[DB] Mappings connected cleanly</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN PORTAL CONTENTS -->
+  <main class="main-viewport">
+    
+    <!-- Portal Top Bar -->
+    <header class="portal-header">
+      <div class="header-left">
+        <h1>Live Operations Portal</h1>
+        <p>Real-time CCTV vision pipeline & retail analytics dashboard</p>
+      </div>
+      <div class="header-right">
+        <!-- Live refresh controller -->
+        <div class="refresh-control">
+          <button class="control-btn active" id="btn-live" onclick="toggleLiveFeed(true)">
+            <svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24" style="color:var(--success)"><circle cx="12" cy="12" r="12"/></svg>
+            Live Poll
+          </button>
+          <button class="control-btn" id="btn-paused" onclick="toggleLiveFeed(false)">
+            <svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24" style="color:var(--text-muted)"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+            Paused
+          </button>
+        </div>
+
+        <!-- Store Switcher Dropdown -->
+        <div class="store-select-wrapper">
+          <svg class="store-select-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+          <select class="store-select-field" id="store-select"></select>
+        </div>
+      </div>
+    </header>
+
+    <!-- KPI SCOREBOARD -->
+    <section class="kpi-scoreboard" id="overview-section">
+      <!-- Card: Revenue -->
+      <div class="kpi-card revenue">
+        <div class="kpi-header">
+          <span class="kpi-label">TOTAL REVENUE</span>
+          <div class="kpi-icon-wrapper">
+            <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+        </div>
+        <div class="kpi-value" id="kpi-rev">₹0</div>
+        <div class="kpi-footer" id="kpi-txns">
+          0 Transactions
+        </div>
+      </div>
+
+      <!-- Card: Conversion Rate -->
+      <div class="kpi-card conversion">
+        <div class="kpi-header">
+          <span class="kpi-label">CONVERSION RATE</span>
+          <div class="kpi-icon-wrapper">
+            <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z"/></svg>
+          </div>
+        </div>
+        <div class="kpi-value" id="kpi-conv">0.0%</div>
+        <div class="kpi-footer">
+          <span class="trend-badge trend-up">✓</span>
+          <span id="kpi-converted">0 Converted</span>
+        </div>
+      </div>
+
+      <!-- Card: Unique Visitors -->
+      <div class="kpi-card visitors">
+        <div class="kpi-header">
+          <span class="kpi-label">UNIQUE VISITORS</span>
+          <div class="kpi-icon-wrapper">
+            <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+          </div>
+        </div>
+        <div class="kpi-value" id="kpi-vis">0</div>
+        <div class="kpi-footer">
+          <svg style="width:12px;height:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.952 11.952 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          <span id="kpi-staff">0 Staff Detected</span>
+        </div>
+      </div>
+
+      <!-- Card: Avg Order Value -->
+      <div class="kpi-card basket">
+        <div class="kpi-header">
+          <span class="kpi-label">AVG BASKET VALUE</span>
+          <div class="kpi-icon-wrapper">
+            <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+          </div>
+        </div>
+        <div class="kpi-value" id="kpi-aov">₹0</div>
+        <div class="kpi-footer" id="kpi-rpv">
+          RPV: ₹0
+        </div>
+      </div>
+
+      <!-- Card: Queue Wait Time -->
+      <div class="kpi-card queue">
+        <div class="kpi-header">
+          <span class="kpi-label">QUEUE WAIT TIME</span>
+          <div class="kpi-icon-wrapper">
+            <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+        </div>
+        <div class="kpi-value" id="kpi-wait">0s</div>
+        <div class="kpi-footer" id="kpi-abandon">
+          Abandonment: 0%
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION: TRENDS & FUNNEL -->
+    <div class="section-divider" id="trends-section">Analytics Trends & Session Flow</div>
+
+    <div class="dashboard-grid-two">
+      <!-- Trend Line Chart -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title-area">
+            <h3 class="panel-title">
+              <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 12l3-3 3 3 4-4M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+              Footfall & Purchase Timeline
+            </h3>
+            <p class="panel-subtitle">Normalized timelines aligning CCTV visitor entries with POS transaction timelines</p>
+          </div>
+        </div>
+        <div style="height: 320px; position: relative;">
+          <canvas id="trendChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Funnel Drop-off -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title-area">
+            <h3 class="panel-title">
+              <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z"/></svg>
+              Conversion Funnel
+            </h3>
+            <p class="panel-subtitle">Visitor progression and stage drop-offs</p>
+          </div>
+        </div>
+        <div class="funnel-container" id="funnel-visual">
+          <!-- Funnel step card template loaded via JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION: STORE LAYOUT MAP -->
+    <div class="section-divider" id="layout-section">Floor Map & Space Utilization</div>
+    
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title-area">
+          <h3 class="panel-title" id="layout-title">Store Layout Floor Map</h3>
+          <p class="panel-subtitle">Dynamic store map detailing zone layout coverages. Click map to inspect.</p>
+        </div>
+      </div>
+      <div class="layout-workspace">
+        <div class="layout-img-wrapper" onclick="openLayoutModal()">
+          <img id="store-layout-img" src="" alt="Floor Plan" style="display: none;" />
+          <div class="zoom-hint">
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/></svg>
+            INSPECT FULLSCREEN
+          </div>
+        </div>
+        <div id="store-layout-placeholder" class="layout-placeholder">
+          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+          <span>No floor plan layout map currently registered for this store.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION: HEATMAPS & ENGAGEMENT -->
+    <div class="section-divider" id="heatmap-section">Zone Heatmaps & Product Performance</div>
+
+    <div class="dashboard-grid-even">
+      <!-- Heatmap Zone Dwell times -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title-area">
+            <h3 class="panel-title">
+              <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              Zone Engagement & Dwell Metrics
+            </h3>
+            <p class="panel-subtitle">Visit frequency, average dwell times and purchase conversion weights per zone</p>
+          </div>
+        </div>
+        <div class="heatmap-list" id="heatmap-list">
+          <!-- Heatmap rows loaded dynamically -->
+        </div>
+      </div>
+
+      <!-- Top Brands & Products -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title-area">
+            <h3 class="panel-title">
+              <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+              Top Brands & Products Breakdown
+            </h3>
+            <p class="panel-subtitle">Itemized POS revenue analytics</p>
+          </div>
+        </div>
+        <div style="height: 180px; position: relative; margin-bottom: 8px;">
+          <canvas id="brandsChart"></canvas>
+        </div>
+        <div class="table-container">
+          <table class="premium-table">
+            <thead>
+              <tr>
+                <th>Product Description</th>
+                <th style="text-align:right">Qty</th>
+                <th style="text-align:right">Total Revenue</th>
+              </tr>
+            </thead>
+            <tbody id="top-products-body">
+              <tr><td colspan="3" style="text-align:center; color: var(--text-muted); padding: 16px;">Loading products...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION: ALERTS & CCTV NODES -->
+    <div class="section-divider" id="alerts-section">Operational Alerts & CCTV Status</div>
+
+    <div class="dashboard-grid-even">
+      <!-- Behavioral Alerts (Anomalies) -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title-area">
+            <h3 class="panel-title">
+              <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              Behavioral Alerts & Anomalies
+            </h3>
+            <p class="panel-subtitle">Real-time alerts flagging queues, checkout bottlenecks or dwell concerns</p>
+          </div>
+        </div>
+        <div class="anomaly-container" id="anomalies-list">
+          <!-- Anomalies loaded dynamically -->
+        </div>
+      </div>
+
+      <!-- CCTV Nodes Pipeline -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title-area">
+            <h3 class="panel-title">
+              <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+              CCTV Processing Nodes
+            </h3>
+            <p class="panel-subtitle">ByteTrack & YOLOv8 node worker pipeline status</p>
+          </div>
+        </div>
+        <div class="cctv-grid" id="pipeline-status-list">
+          <!-- CCTV nodes loaded dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION: NETWORK COMPARISON -->
+    <div class="section-divider" id="comparison-section">Store Network Analysis</div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title-area">
+          <h3 class="panel-title">
+            <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            Cross-Store Performance Network
+          </h3>
+          <p class="panel-subtitle">Network comparative overview of store operational efficiency indicators</p>
+        </div>
+      </div>
+      <div class="table-container">
+        <table class="premium-table">
+          <thead>
+            <tr>
+              <th>Store ID</th>
+              <th>Location</th>
+              <th style="text-align:right">Revenue</th>
+              <th style="text-align:right">Visitors</th>
+              <th style="text-align:right">Conversion</th>
+              <th style="text-align:right">AOV</th>
+              <th style="text-align:right">RPV</th>
+              <th style="text-align:right">Avg Queue Wait</th>
+              <th style="text-align:right">Loyalty (Repeat %)</th>
+            </tr>
+          </thead>
+          <tbody id="comparison-table-body">
+            <tr><td colspan="9" style="text-align:center; color: var(--text-muted); padding: 16px;">Comparing store channels...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <footer class="portal-footer" id="footer-stamp">
+      Apex Store Intelligence Console v2.0
+    </footer>
+  </main>
+
+  <!-- STORE MAP EXPANSION MODAL -->
+  <div id="layout-modal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeLayoutModal()">×</button>
+      <img id="modal-image" class="modal-img" src="" alt="Full floor layout map" />
+      <div class="modal-title" id="modal-caption">Store Floor Plan Layout</div>
+    </div>
+  </div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    let activeStore = null;
+    let trendChart = null;
+    let brandsChart = null;
+    let livePollingActive = true;
+    let pollInterval = null;
+    let lastLoggedClips = {};
+
+    // System Log Console helper
+    function addConsoleLog(text, type = 'info') {
+      const consoleOutput = $('console-output');
+      if (!consoleOutput) return;
+      
+      const timestamp = new Date().toLocaleTimeString();
+      const div = document.createElement('div');
+      div.className = `console-line ${type}`;
+      div.textContent = `[${timestamp}] ${text}`;
+      
+      consoleOutput.appendChild(div);
+      consoleOutput.scrollTop = consoleOutput.scrollHeight;
+      
+      // Cap at 20 lines
+      while (consoleOutput.children.length > 25) {
+        consoleOutput.removeChild(consoleOutput.firstChild);
+      }
+    }
+
+    async function init() {
+      try {
+        const resp = await fetch('/stores');
+        const data = await resp.json();
+        const sel = $('store-select');
+        const stores = data.stores && data.stores.length ? data.stores : ['STORE_BLR_002', 'STORE_DEL_004'];
+        
+        const allowedStores = stores.filter(s => s === 'STORE_BLR_002' || s === 'STORE_DEL_004');
+        sel.innerHTML = allowedStores.map(s => {
+          const label = s === 'STORE_BLR_002' ? 'Store 1' : 'Store 2';
+          return `<option value="${s}">${label}</option>`;
+        }).join('');
+        
+        activeStore = allowedStores[0];
+        sel.value = activeStore;
+        
+        sel.onchange = () => { 
+          activeStore = sel.value; 
+          addConsoleLog(`Switched viewport focus to ${activeStore}`, 'info');
+          refresh(); 
+        };
+        
+        addConsoleLog("Initialised control console.", "success");
+        addConsoleLog(`Active Store: ${activeStore}`, "info");
+
+        // Set up scroll highlight highlights
+        setupScrollObserver();
+        
+        refresh();
+        startPolling();
+      } catch (e) {
+        console.error("Init failed:", e);
+        $('live-status').textContent = 'OFFLINE';
+        $('live-badge').classList.add('offline');
+        addConsoleLog("Failed to establish server connection.", "warn");
+      }
+    }
+
+    function startPolling() {
+      if (pollInterval) clearInterval(pollInterval);
+      pollInterval = setInterval(refresh, 2500);
+      livePollingActive = true;
+      $('btn-live').classList.add('active');
+      $('btn-paused').classList.remove('active');
+    }
+
+    function toggleLiveFeed(active) {
+      if (active) {
+        startPolling();
+        addConsoleLog("Live polling state: active.", "success");
+      } else {
+        clearInterval(pollInterval);
+        livePollingActive = false;
+        $('btn-live').classList.remove('active');
+        $('btn-paused').classList.add('active');
+        addConsoleLog("Live polling state: paused.", "warn");
+      }
+    }
+
+    function setupScrollObserver() {
+      const sections = document.querySelectorAll('section, div.section-divider');
+      const navLinks = document.querySelectorAll('.nav-link');
+      
+      window.addEventListener('scroll', () => {
+        let current = "";
+        sections.forEach(section => {
+          const sectionTop = section.offsetTop;
+          if (pageYOffset >= sectionTop - 120) {
+            current = section.getAttribute('id');
+          }
+        });
+        
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === `#${current}`) {
+            link.classList.add('active');
+          }
+        });
+      });
+    }
+
+    function openLayoutModal() {
+      const img = $('store-layout-img');
+      if (img && img.style.display !== 'none') {
+        $('modal-image').src = img.src;
+        $('modal-caption').textContent = $('layout-title').textContent;
+        $('layout-modal').style.display = 'flex';
+        addConsoleLog("Inspecting store layout floor plan.", "info");
+      }
+    }
+
+    function closeLayoutModal() {
+      $('layout-modal').style.display = 'none';
+    }
+
+    function fmt(val) {
+      return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(val);
+    }
+
+    async function refresh() {
+      if (!activeStore) return;
+      try {
+        const [m, f, h, a, st] = await Promise.all([
+          fetch(`/stores/${activeStore}/metrics`).then(r => r.json()),
+          fetch(`/stores/${activeStore}/funnel`).then(r => r.json()),
+          fetch(`/stores/${activeStore}/heatmap`).then(r => r.json()),
+          fetch(`/stores/${activeStore}/anomalies`).then(r => r.json()),
+          fetch('/stores').then(r => r.json())
+        ]);
+
+        $('live-status').textContent = 'PORTAL ONLINE';
+        $('live-badge').classList.remove('offline');
+
+        /* ── KPIs ── */
+        $('kpi-rev').textContent = fmt(m.total_revenue || 0);
+        $('kpi-txns').innerHTML = `<span class="trend-badge trend-up">+${m.transaction_count || 0}</span> Transactions`;
+        $('kpi-conv').textContent = `${((m.conversion_rate || 0) * 100).toFixed(1)}%`;
+        $('kpi-converted').textContent = `${m.converted_visitors || 0} Converted`;
+        $('kpi-vis').textContent = m.unique_visitors || 0;
+        $('kpi-staff').textContent = `${m.staff_count || 0} Staff Detected`;
+        $('kpi-aov').textContent = fmt(m.avg_basket_value || 0);
+        $('kpi-rpv').textContent = `RPV: ${fmt(m.revenue_per_visitor || 0)}`;
+        $('kpi-wait').textContent = `${m.avg_queue_wait_time_s || 0}s`;
+        $('kpi-abandon').textContent = `Abandonment: ${((m.queue_abandonment_rate || 0) * 100).toFixed(1)}%`;
+
+        /* ── Store Layout Floor Plan ── */
+        const layoutImg = $('store-layout-img');
+        const layoutPlaceholder = $('store-layout-placeholder');
+        const layoutTitle = $('layout-title');
+        
+        let mapUrl = '';
+        if (activeStore === 'STORE_BLR_002') {
+          mapUrl = '/footage/Store 1/Store 1 - layout.png';
+          layoutTitle.textContent = 'Store 1 — Floor Plan Layout';
+        } else if (activeStore === 'STORE_DEL_004') {
+          mapUrl = '/footage/Store 2/store 2 - layout.png';
+          layoutTitle.textContent = 'Store 2 — Floor Plan Layout';
+        }
+        
+        if (mapUrl) {
+          layoutImg.src = mapUrl;
+          layoutImg.style.display = 'block';
+          layoutPlaceholder.style.display = 'none';
+        } else {
+          layoutImg.style.display = 'none';
+          layoutPlaceholder.style.display = 'flex';
+          layoutTitle.textContent = 'Store Floor Plan Layout';
+        }
+
+        /* ── Funnel ── */
+        const maxC = Math.max(...f.stages.map(s => s.count), 1);
+        $('funnel-visual').innerHTML = f.stages.map((s, i) => {
+          const w = Math.max((s.count / maxC) * 100, 5);
+          const drop = s.drop_off_pct > 0 ? `<span class="funnel-step-dropoff">▼ ${s.drop_off_pct}% Drop</span>` : '';
+          return `
+            <div class="funnel-step-card">
+              <div class="funnel-step-header">
+                <span class="funnel-step-label">
+                  <span class="number">0${i+1}</span>
+                  ${s.stage.replace('_',' ')}
+                </span>
+                <span class="funnel-step-metrics">${s.count} sessions ${drop}</span>
+              </div>
+              <div class="funnel-progress-bg">
+                <div class="funnel-progress-fill" style="width:${w}%; ${i>1 ? 'background:linear-gradient(90deg, var(--primary) 0%, var(--info) 100%);' : ''}"></div>
+              </div>
+            </div>`;
+        }).join('');
+
+        /* ── Zone Heatmap ── */
+        const hl = $('heatmap-list');
+        if (h.zones && h.zones.length) {
+          hl.innerHTML = h.zones.map(z => {
+            const frequencyPct = z.visit_score || 0;
+            return `
+              <div class="heatmap-row">
+                <div class="heatmap-zone-info">
+                  <span class="heatmap-zone-name">${z.zone_id}</span>
+                  <span class="heatmap-zone-meta">${z.avg_dwell_s}s Avg Dwell</span>
+                </div>
+                <div class="heatmap-visits-bar">
+                  <div class="heatmap-visits-label">
+                    <span>Traffic Intensity</span>
+                    <span>${z.visit_frequency} visits</span>
+                  </div>
+                  <div class="funnel-progress-bg">
+                    <div class="funnel-progress-fill" style="width:${frequencyPct}%; background: linear-gradient(90deg, var(--secondary) 0%, var(--primary) 100%)"></div>
+                  </div>
+                </div>
+                <div class="heatmap-conversion">
+                  <span class="heatmap-conv-value">${z.conversion_rate > 0 ? (z.conversion_rate*100).toFixed(0)+'%' : '0%'}</span>
+                  <span class="heatmap-conv-lbl">Conv</span>
+                </div>
+              </div>`;
+          }).join('');
+        } else {
+          hl.innerHTML = `
+            <div class="layout-placeholder">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              <span>No zone dwell traffic registered yet.</span>
+            </div>`;
+        }
+
+        /* ── Products Table ── */
+        const pb = $('top-products-body');
+        if (m.top_products && m.top_products.length) {
+          pb.innerHTML = m.top_products.map(p => `
+            <tr>
+              <td><b>${p.product}</b></td>
+              <td style="text-align:right" class="td-highlight">${p.qty}</td>
+              <td style="text-align:right; font-weight:600; color:var(--primary);">${fmt(p.revenue)}</td>
+            </tr>`).join('');
+        } else {
+          pb.innerHTML = `
+            <tr>
+              <td colspan="3" style="text-align:center; color: var(--text-muted); padding: 24px;">
+                No itemized product detail transactions recorded for this channel.
+              </td>
+            </tr>`;
+        }
+
+        /* ── Anomalies ── */
+        const al = $('anomalies-list');
+        if (a.anomalies && a.anomalies.length) {
+          al.innerHTML = a.anomalies.map(an => {
+            return `
+              <div class="anomaly-card ${an.severity}">
+                <div class="anomaly-icon">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                </div>
+                <div class="anomaly-details">
+                  <div class="anomaly-title-line">
+                    <span class="anomaly-type">${an.anomaly_type}</span>
+                    <span class="anomaly-badge">${an.severity}</span>
+                  </div>
+                  <span class="anomaly-desc">${an.detail}</span>
+                  <div class="anomaly-action">
+                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                    <span>${an.suggested_action}</span>
+                  </div>
+                </div>
+              </div>`;
+          }).join('');
+        } else {
+          al.innerHTML = `
+            <div class="anomaly-card INFO" style="justify-content:center; align-items:center; padding: 32px;">
+              <span style="color:var(--success); font-weight:600; display:flex; align-items:center; gap:8px;">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                System status nominal. No anomalies flagged.
+              </span>
+            </div>`;
+        }
+
+        /* ── Charts ── */
+        updateCharts(m.trends, m.top_brands);
+
+        /* ── Pipeline ── */
+        fetchPipeline();
+
+        /* ── Store Comparison ── */
+        loadComparison(st.stores || ['STORE_BLR_002', 'STORE_DEL_004']);
+
+        /* ── Footer ── */
+        $('footer-stamp').textContent = `DB Last Updated ${new Date().toLocaleTimeString()} · Calculated at ${m.computed_at} · Apex Core Engine`;
+
+      } catch (e) {
+        console.error("Refresh failed:", e);
+        $('live-status').textContent = 'CONSOLE DEGRADED';
+        $('live-badge').classList.add('offline');
+        addConsoleLog("Server response error. Retrying connection...", "warn");
+      }
+    }
+
+    async function fetchPipeline() {
+      try {
+        const pResp = await fetch('/pipeline/status');
+        const pData = await pResp.json();
+        const pl = $('pipeline-status-list');
+        if (pData.clips && pData.clips.length) {
+          pl.innerHTML = pData.clips.map(p => {
+             const statusVal = p.status || 'QUEUED';
+             const sc = statusVal === 'COMPLETED' ? 'COMPLETED' : statusVal === 'PROCESSING' ? 'PROCESSING' : statusVal === 'FAILED' ? 'FAILED' : 'QUEUED';
+             const progressPct = p.progress || 0;
+             
+             // Log completion in console if it just finished
+             const clipKey = `${p.store}-${p.camera}`;
+             if (statusVal === 'COMPLETED' && lastLoggedClips[clipKey] !== 'COMPLETED') {
+                addConsoleLog(`Pipeline SUCCESS: ${p.clip.split('/').pop()} completed.`, 'success');
+                lastLoggedClips[clipKey] = 'COMPLETED';
+             } else if (statusVal === 'PROCESSING' && lastLoggedClips[clipKey] !== 'PROCESSING') {
+                addConsoleLog(`Pipeline START: Analyzing ${p.clip.split('/').pop()}`, 'info');
+                lastLoggedClips[clipKey] = 'PROCESSING';
+             }
+             
+             return `
+              <div class="cctv-card">
+                <div class="cctv-info">
+                  <span class="cctv-name">
+                    <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                    ${p.clip.split('/').pop()}
+                  </span>
+                  <span class="cctv-status-badge ${sc}">${sc}</span>
+                </div>
+                <div class="cctv-progress">
+                  <div class="cctv-progress-bg">
+                    <div class="cctv-progress-fill" style="width:${progressPct}%; background:${sc==='COMPLETED' ? 'var(--success)' : sc==='FAILED' ? 'var(--danger)' : 'var(--primary)'}"></div>
+                  </div>
+                  <span class="cctv-progress-val">${progressPct.toFixed(0)}%</span>
+                </div>
+              </div>`;
+          }).join('');
+        } else {
+          pl.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);">No pipeline nodes discovered.</div>';
+        }
+      } catch (err) {}
+    }
+
+    async function loadComparison(storeIds) {
+      try {
+        const allowedStores = storeIds.filter(sid => sid === 'STORE_BLR_002' || sid === 'STORE_DEL_004');
+        const data = await Promise.all(allowedStores.map(sid => fetch(`/stores/${sid}/metrics`).then(r => r.json())));
+        $('comparison-table-body').innerHTML = data.map(s => {
+          const label = s.store_id === 'STORE_BLR_002' ? 'Store 1' : 'Store 2';
+          return `<tr>
+            <td><b>${label}</b></td>
+            <td>${label}</td>
+            <td style="text-align:right" class="td-highlight">${fmt(s.total_revenue)}</td>
+            <td style="text-align:right">${s.unique_visitors}</td>
+            <td style="text-align:right"><b>${(s.conversion_rate*100).toFixed(1)}%</b></td>
+            <td style="text-align:right">${fmt(s.avg_basket_value)}</td>
+            <td style="text-align:right">${fmt(s.revenue_per_visitor)}</td>
+            <td style="text-align:right">${s.avg_queue_wait_time_s}s</td>
+            <td style="text-align:right">${(s.repeat_visitor_rate*100).toFixed(1)}%</td>
+          </tr>`;
+        }).join('');
+      } catch (err) { console.error("Comparison load error:", err); }
+    }
+
+    function updateCharts(trends, brands) {
+      const chartDefaults = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              usePointStyle: true,
+              boxWidth: 6,
+              color: '#9CA3AF',
+              font: { family: 'Inter', size: 11 }
+            }
+          },
+          tooltip: {
+            backgroundColor: '#0C0F1A',
+            titleColor: '#F3F4F6',
+            bodyColor: '#9CA3AF',
+            borderColor: 'rgba(255,255,255,0.08)',
+            borderWidth: 1,
+            padding: 10,
+            usePointStyle: true
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { color: '#6B7280', font: { family: 'Inter', size: 10 } }
+          },
+          y: {
+            border: { dash: [4,4] },
+            grid: { color: 'rgba(255,255,255,0.03)' },
+            ticks: { color: '#6B7280', font: { family: 'Inter', size: 10 } }
+          }
+        }
+      };
+
+      // Trend Line Chart
+      if (trends && trends.labels && trends.labels.length) {
+        if (trendChart) {
+          trendChart.data.labels = trends.labels;
+          trendChart.data.datasets[0].data = trends.visitors;
+          trendChart.data.datasets[1].data = trends.conversions;
+          trendChart.update('none');
+        } else {
+          const ctx = $('trendChart').getContext('2d');
+          
+          // Create gradient for visitor dataset
+          const vGradient = ctx.createLinearGradient(0, 0, 0, 300);
+          vGradient.addColorStop(0, 'rgba(6, 182, 212, 0.25)');
+          vGradient.addColorStop(1, 'rgba(6, 182, 212, 0.0)');
+
+          trendChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: trends.labels,
+              datasets: [
+                {
+                  label: 'Hourly Visitors',
+                  data: trends.visitors,
+                  borderColor: '#06B6D4',
+                  backgroundColor: vGradient,
+                  fill: true,
+                  tension: 0.4,
+                  borderWidth: 2,
+                  pointRadius: 0,
+                  pointHoverRadius: 4,
+                  pointHoverBackgroundColor: '#06B6D4'
+                },
+                {
+                  label: 'Purchases (POS)',
+                  data: trends.conversions,
+                  borderColor: '#10B981',
+                  backgroundColor: 'transparent',
+                  tension: 0.4,
+                  borderWidth: 2.5,
+                  pointRadius: 0,
+                  pointHoverRadius: 4,
+                  pointHoverBackgroundColor: '#10B981'
+                }
+              ]
+            },
+            options: chartDefaults
+          });
+        }
+      }
+
+      // Brands Revenue Bar Chart
+      if (brands && brands.length) {
+        const labels = brands.map(b => b.brand);
+        const revs = brands.map(b => b.revenue);
+        if (brandsChart) {
+          brandsChart.data.labels = labels;
+          brandsChart.data.datasets[0].data = revs;
+          brandsChart.update('none');
+        } else {
+          const ctx = $('brandsChart').getContext('2d');
+          
+          // Gradient for bars
+          const bGradient = ctx.createLinearGradient(0, 0, 0, 180);
+          bGradient.addColorStop(0, 'rgba(99, 102, 241, 0.85)');
+          bGradient.addColorStop(1, 'rgba(6, 182, 212, 0.45)');
+
+          brandsChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels,
+              datasets: [{
+                label: 'Gross Channel Revenue (₹)',
+                data: revs,
+                backgroundColor: bGradient,
+                borderRadius: 5,
+                borderSkipped: false
+              }]
+            },
+            options: {
+              ...chartDefaults,
+              plugins: {
+                ...chartDefaults.plugins,
+                legend: { display: false } // Hidden legend for brand comparison
+              }
+            }
+          });
+        }
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

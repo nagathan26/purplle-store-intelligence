@@ -1,0 +1,8 @@
+# Heavy dependencies for the REAL video-detection path (pipeline/detect.py --mode video).
+# Not required for the API, tests, synthetic pipeline, or the live dashboard demo.
+# Install only when running detection against actual CCTV clips:
+#   pip install -r requirements-detection.txt
+ultralytics==8.2.103   # YOLOv8 + built-in ByteTrack tracker
+lapx>=0.5.2            # linear-assignment solver ByteTrack imports as `lap`
+opencv-python-headless==4.10.0.84
+numpy==1.26.4
