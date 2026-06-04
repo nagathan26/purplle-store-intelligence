@@ -28,10 +28,12 @@ from .storage import DatabaseUnavailable, Store
 
 DB_PATH = os.environ.get("DB_PATH", "/data/store.db")
 
-if "POS_PATH" in os.environ:
+if "POS_PATH" in os.environ and os.path.exists(os.environ["POS_PATH"]):
     POS_PATH = os.environ["POS_PATH"]
 elif os.path.exists("CCTV Footage/pos.csv"):
     POS_PATH = "CCTV Footage/pos.csv"
+elif os.path.exists("CCTV_Footage/pos.csv"):
+    POS_PATH = "CCTV_Footage/pos.csv"
 else:
     POS_PATH = "/data/pos_transactions.csv"
 
@@ -198,10 +200,12 @@ def watch_cctv_directory():
 
     cctv_dir = Path("CCTV Footage")
     if not cctv_dir.exists():
-        log_pipeline_message("WARNING: 'CCTV Footage' directory not found.")
+        cctv_dir = Path("CCTV_Footage")
+    if not cctv_dir.exists():
+        log_pipeline_message("WARNING: 'CCTV Footage' or 'CCTV_Footage' directory not found.")
         return
 
-    log_pipeline_message("Watcher started scanning 'CCTV Footage' directory.")
+    log_pipeline_message(f"Watcher started scanning '{cctv_dir.name}' directory.")
 
     # Collect all clips to process
     mp4_files = sorted(cctv_dir.rglob("*.mp4"))
@@ -312,7 +316,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Apex Store Intelligence API", version="1.0.0", lifespan=lifespan)
 app.add_middleware(StructuredLoggingMiddleware)
-app.mount("/footage", StaticFiles(directory="CCTV Footage"), name="footage")
+footage_dir = "CCTV Footage" if os.path.exists("CCTV Footage") else "CCTV_Footage"
+app.mount("/footage", StaticFiles(directory=footage_dir), name="footage")
 
 
 def _rebase_pos_rows(rows: list[dict]) -> list[dict]:
@@ -384,6 +389,8 @@ def _maybe_load_pos() -> None:
     store.load_pos(pos_rows)
 
     cctv_dir = Path("CCTV Footage")
+    if not cctv_dir.exists():
+        cctv_dir = Path("CCTV_Footage")
     if cctv_dir.exists():
         csv_files = list(cctv_dir.rglob("*.csv"))
         temp_rows = []
