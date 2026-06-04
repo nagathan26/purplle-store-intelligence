@@ -1,9 +1,12 @@
 # Apex Store Intelligence
 
-End-to-end pipeline that turns raw retail CCTV into a live, queryable analytics API.
-Raw video → person detection & tracking → structured behavioural events → an
-Intelligence API computing the **North Star metric, offline-store conversion rate** →
-a live dashboard. Every stage is implemented and connected.
+Apex Store Intelligence is an end-to-end retail analytics platform that converts raw CCTV security footage into structured behavioral insights and live operations metrics.
+
+### Key Capabilities
+* **Computer Vision Pipeline**: Processes multi-camera feeds in parallel using YOLOv8 person detection and ByteTrack real-time object tracking.
+* **Intelligent API & Session Reconstruction**: A FastAPI backend over SQLite that folds raw, noisy floor/billing-only track paths into unified visitor sessions, preventing re-entry inflation.
+* **Offline-Store Conversion Rate**: Correlates CCTV visitor timelines with POS detailed transaction data inside temporal windows to calculate the store's conversion rate.
+* **Live Operations Dashboard**: An interactive, lightweight dashboard that polls endpoints every 2.5 seconds to visualize footfall trends, zone engagement heatmaps, purchase funnels, and active operational anomalies.
 
 ```
  CCTV clips ─▶ Detection Layer ─▶ Event Stream ─▶ Intelligence API ─▶ Live Dashboard
@@ -39,8 +42,8 @@ blocked on reviewer hardware.
 
 ## What runs when you `docker compose up`
 
-1. The API starts and clears the events table for a clean re-run (see
-   `app/main.py:lifespan`). The clips themselves are unchanged.
+1. The API starts, deletes any old JSONL backups, and clears the database tables
+   for a clean re-run from scratch (see `app/main.py:lifespan`). The clips themselves are unchanged.
 2. The watcher thread enumerates `*.mp4` files in `CCTV Footage/`, parses
    `store_id` / `camera_id` from the filename, and starts one detector
    subprocess per clip (`pipeline/detect.py`).
@@ -154,7 +157,7 @@ $env:PYTHONPATH = $PWD ; $env:DB_PATH = ".\store.db" ; $env:POS_PATH = ".\pos.cs
 python -m uvicorn app.main:app --port 8000
 ```
 
-On startup the lifespan clears the events table and the watcher discovers every
+On startup the lifespan clears the database tables, deletes old JSONL backups, and the watcher discovers every
 `*.mp4` under `CCTV Footage/`, mapping each to a camera role (see
 `app/parse_clip_info` / `store_layout.json`) and spawning one `pipeline/detect.py`
 subprocess per clip. The detectors POST events to the same API as they run, so
@@ -169,7 +172,7 @@ run downloads `yolov8n.pt` (~6 MB) if it isn't already present.
 ```bash
 pip install -r requirements.txt pytest pytest-cov
 PYTHONPATH=$PWD pytest --cov=app --cov=pipeline
-# 37 tests, ~94% statement coverage on the API + session + tracker logic.
+# 53 tests, ~94% statement coverage on the API + session + tracker logic.
 # `.coveragerc` omits the heavy CV-only modules (pipeline/detect.py, seed.py,
 # stream.py and the CCTV-watcher driver in app/main.py); those run end-to-end
 # in `docker compose up` against the real clips but can't run in unit tests.

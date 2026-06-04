@@ -41,9 +41,6 @@
         <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=#64748B;" edge="1" parent="1" source="cv_inference" target="jsonl_backups">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=#64748B;label=Lifespan Hot-Reload;" edge="1" parent="1" source="jsonl_backups" target="sqlite_db">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
         <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#94A3B8;strokeWidth=2;" edge="1" parent="1" source="sqlite_db" target="analytics_engine">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>

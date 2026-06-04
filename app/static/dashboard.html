@@ -388,6 +388,11 @@
       box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
     }
 
+    .store-select-field option {
+      background-color: var(--sidebar-bg);
+      color: var(--text-primary);
+    }
+
     /* ════════════════════════════════════════════════════════
        KPI SCOREBOARD (GLOWING CARDS)
        ════════════════════════════════════════════════════════ */
@@ -1256,9 +1261,8 @@
           </div>
         </div>
         <div class="kpi-value" id="kpi-conv">0.0%</div>
-        <div class="kpi-footer">
-          <span class="trend-badge trend-up">✓</span>
-          <span id="kpi-converted">0 Converted</span>
+        <div class="kpi-footer" id="kpi-converted">
+          0 Converted
         </div>
       </div>
 
@@ -1271,10 +1275,6 @@
           </div>
         </div>
         <div class="kpi-value" id="kpi-vis">0</div>
-        <div class="kpi-footer">
-          <svg style="width:12px;height:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.952 11.952 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-          <span id="kpi-staff">0 Staff Detected</span>
-        </div>
       </div>
 
       <!-- Card: Avg Order Value -->
@@ -1652,7 +1652,6 @@
         $('kpi-conv').textContent = `${((m.conversion_rate || 0) * 100).toFixed(1)}%`;
         $('kpi-converted').textContent = `${m.converted_visitors || 0} Converted`;
         $('kpi-vis').textContent = m.unique_visitors || 0;
-        $('kpi-staff').textContent = `${m.staff_count || 0} Staff Detected`;
         $('kpi-aov').textContent = fmt(m.avg_basket_value || 0);
         $('kpi-rpv').textContent = `RPV: ${fmt(m.revenue_per_visitor || 0)}`;
         $('kpi-wait').textContent = `${m.avg_queue_wait_time_s || 0}s`;
