@@ -24,7 +24,7 @@ COPY yolov8n.pt ./yolov8n.pt
 COPY store_layout.json ./store_layout.json
 
 # Include CCTV footage and POS data in image
-COPY "CCTV Footage" "./CCTV Footage"
+COPY CCTV_Footage ./CCTV_Footage
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONPATH=/srv \
