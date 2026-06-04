@@ -1,22 +1,22 @@
+version: "3.9"
+
 services:
   api:
     build: .
     image: store-intel-api:latest
     container_name: store-intel-api
+
     ports:
       - "8000:8000"
-    volumes:
-      - "./CCTV Footage:/srv/CCTV Footage:ro"
-      - "./CCTV Footage/pos.csv:/data/pos_transactions.csv:ro"
-      - store_data:/data
+
     environment:
       DB_PATH: /data/store.db
-      POS_PATH: /data/pos_transactions.csv
+      POS_PATH: "/srv/CCTV Footage/pos.csv"
       STALE_FEED_S: "600"
-      # If an NVIDIA GPU + the nvidia-container-runtime are available, the
-      # detector will pick it up automatically (torch.cuda.is_available()).
-      # We do not *require* a GPU at the compose level so the acceptance gate
-      # (`docker compose up`) works on CPU-only reviewer machines.
+
+    volumes:
+      - store_data:/data
+
     restart: unless-stopped
 
 volumes:
